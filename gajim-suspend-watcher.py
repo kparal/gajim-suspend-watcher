@@ -15,6 +15,16 @@ import dbus
 from dbus.mainloop.glib import DBusGMainLoop
 import gobject
 import time
+import optparse
+
+parser = optparse.OptionParser(description="Change Gajim's status to offline "
+    "before system suspend and back to previous status on system resume. "
+    "Have this auto-started with your system session.")
+parser.add_option('-s', '--resume-status', help='Use this status after resume '\
+                  'instead of last used status [valid values: online, chat, ' \
+                  'away, xa, dnd, invisible, offline]', default=None,
+                  metavar='STATUS')
+(options, args) = parser.parse_args()
 
 gajim_service = 'org.gajim.dbus'
 gajim_obj = '/org/gajim/dbus/RemoteObject'
@@ -58,7 +68,7 @@ def on_resume(*args, **kwargs):
         should_connect = True
 
 def connect(*args, **kwargs):
-    global should_connect, last_status
+    global should_connect, last_status, options
 
     if not should_connect:
         return False
@@ -67,6 +77,8 @@ def connect(*args, **kwargs):
         print '%s: Network not connected, not changing Gajim status yet' % time.asctime()
         return False
     else:
+        if options.resume_status:
+            last_status = options.resume_status
         print '%s: Network connected, changing Gajim status to %s' % (time.asctime(), last_status)
         igajim.change_status(last_status, '', '')
         should_connect = False
