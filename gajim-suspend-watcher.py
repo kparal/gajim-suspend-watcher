@@ -93,5 +93,7 @@ system_bus.add_signal_receiver(signal_name='Resuming', dbus_interface=upower_int
 system_bus.add_signal_receiver(signal_name='StateChanged', dbus_interface=nm_int,
                                handler_function=connect)
 
+print 'Suspend monitoring started...'
+
 loop = gobject.MainLoop()
 loop.run()
