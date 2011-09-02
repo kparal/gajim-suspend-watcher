@@ -27,7 +27,8 @@ upower_int = 'org.freedesktop.UPower'
 nm_service = 'org.freedesktop.NetworkManager'
 nm_obj = '/org/freedesktop/NetworkManager'
 nm_int = 'org.freedesktop.NetworkManager'
-NM_STATE_CONNECTED_GLOBAL = 70
+NM_STATE_CONNECTED_GLOBAL = 70 # NM 0.9
+NM_STATE_CONNECTED = 3 # NM 0.8
 
 DBusGMainLoop(set_as_default=True)
 
@@ -62,7 +63,7 @@ def connect(*args, **kwargs):
     if not should_connect:
         return False
 
-    if inm.state() != NM_STATE_CONNECTED_GLOBAL:
+    if inm.state() != NM_STATE_CONNECTED_GLOBAL and inm.state() != NM_STATE_CONNECTED:
         print '%s: Network not connected, not changing Gajim status yet' % time.asctime()
         return False
     else:
