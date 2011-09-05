@@ -16,6 +16,7 @@ from dbus.mainloop.glib import DBusGMainLoop
 import gobject
 import time
 import optparse
+import sys
 
 parser = optparse.OptionParser(description="Change Gajim's status to offline "
     "before system suspend and back to previous status on system resume. "
@@ -45,16 +46,27 @@ DBusGMainLoop(set_as_default=True)
 session_bus = dbus.SessionBus()
 system_bus = dbus.SystemBus()
 
-gajim = session_bus.get_object(gajim_service, gajim_obj)
-igajim = dbus.Interface(gajim, dbus_interface=gajim_int)
-
 nm = system_bus.get_object(nm_service, nm_obj)
 inm = dbus.Interface(nm, dbus_interface=nm_int)
 
 last_status = 'offline'
 should_connect = False
 
+def get_igajim():
+    try:
+        gajim = session_bus.get_object(gajim_service, gajim_obj)
+        igajim = dbus.Interface(gajim, dbus_interface=gajim_int)
+        return igajim
+    except dbus.exceptions.DBusException, ex:
+        print >> sys.stderr, ex
+        return None
+
 def on_suspend(*args, **kwargs):
+    igajim = get_igajim()
+    if igajim is None:
+        print '%s: Suspending, but Gajim not running' % time.asctime()
+        return
+
     global last_status, should_connect
     if not should_connect:
         last_status = igajim.get_status('')
@@ -77,10 +89,14 @@ def connect(*args, **kwargs):
         print '%s: Network not connected, not changing Gajim status yet' % time.asctime()
         return False
     else:
-        if options.resume_status:
-            last_status = options.resume_status
-        print '%s: Network connected, changing Gajim status to %s' % (time.asctime(), last_status)
-        igajim.change_status(last_status, '', '')
+        igajim = get_igajim()
+        if igajim is None:
+            print '%s: Network connected, but Gajim not running' % time.asctime()
+        else:
+            if options.resume_status:
+                last_status = options.resume_status
+            print '%s: Network connected, changing Gajim status to %s' % (time.asctime(), last_status)
+            igajim.change_status(last_status, '', '')
         should_connect = False
         return True
 
