@@ -33,3 +33,6 @@ Donations
 =========
 
 If you like this program you can `Flattr me <https://flattr.com/profile/kamil.paral>`_.
+
+.. image:: http://api.flattr.com/button/flattr-badge-large.png
+   :target: https://flattr.com/profile/kamil.paral
