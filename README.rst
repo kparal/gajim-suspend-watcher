@@ -2,6 +2,10 @@
  gajim-suspend-watcher
 =======================
 
+.. image:: http://unmaintained.tech/badge.svg
+  :target: http://unmaintained.tech/
+  :alt: No Maintenance Intended 
+
 Fix for `Gajim IM <http://gajim.org/>`_ to disconnect accounts before machine suspend and reconnect them after machine resume.
 
 This was written for GNOME, but it could work also for other environments with UPower and NetworkManager.
